@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CMT — Conference Management Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#16213E;
+    --ink-2:#2B3A63;
+    --paper:#EFEAD9;
+    --paper-2:#F8F5EA;
+    --card:#FCFAF3;
+    --brass:#A2782F;
+    --brass-dk:#7C5A22;
+    --teal:#2E6B63;
+    --teal-dk:#1F4A44;
+    --rust:#AE402B;
+    --line:#D8CFB4;
+    --text:#20263B;
+    --text-soft:#5B5F72;
+    --radius:2px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--text);
+    font-family:'IBM Plex Sans',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,h4{
+    font-family:'Fraunces',serif;
+    margin:0;
+    color:var(--ink);
+    font-weight:600;
+  }
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  a{color:inherit;}
+  button{font-family:inherit;cursor:pointer;}
+  ::selection{background:var(--brass);color:#fff;}
+  :focus-visible{outline:2px solid var(--teal);outline-offset:2px;}
+
+  /* ===== Masthead ===== */
+  .masthead{
+    background:var(--ink);
+    color:var(--paper-2);
+    border-bottom:4px solid var(--brass);
+  }
+  .masthead-top{
+    max-width:1180px;margin:0 auto;padding:14px 28px 10px;
+    display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:10px;
+  }
+  .brand{display:flex;flex-direction:column;gap:2px;}
+  .brand-eyebrow{
+    font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--brass);
+  }
+  .brand h1{font-size:28px;color:#fff;letter-spacing:.01em;}
+  .brand-sub{font-size:12.5px;color:#B9BFD6;font-family:'IBM Plex Mono',monospace;}
+  .masthead-meta{
+    font-family:'IBM Plex Mono',monospace;font-size:12px;color:#C9CEE0;
+    text-align:right;line-height:1.6;
+  }
+  nav.tabs{
+    max-width:1180px;margin:0 auto;padding:0 28px;
+    display:flex;gap:2px;flex-wrap:wrap;border-top:1px solid #2B3A63;
+  }
+  nav.tabs button{
+    background:none;border:none;color:#B9BFD6;
+    padding:12px 16px;font-size:13.5px;font-weight:500;letter-spacing:.02em;
+    border-bottom:2px solid transparent;transition:.15s;
+  }
+  nav.tabs button:hover{color:#fff;}
+  nav.tabs button.active{color:#fff;border-bottom-color:var(--brass);}
+
+  main{max-width:1180px;margin:0 auto;padding:0 28px 90px;}
+  section{display:none;}
+  section.active{display:block;animation:fadeUp .5s ease;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+  /* ===== Hero / current conference ===== */
+  .hero{
+    margin-top:34px;
+    background:var(--ink);
+    color:var(--paper-2);
+    border:1px solid var(--ink-2);
+    padding:38px 40px 34px;
+    position:relative;
+    overflow:hidden;
+  }
+  .hero::before{
+    content:"";position:absolute;inset:0;
+    background-image:repeating-linear-gradient(115deg, rgba(255,255,255,0.025) 0 2px, transparent 2px 26px);
+    pointer-events:none;
+  }
+  .live-badge{
+    display:inline-flex;align-items:center;gap:7px;
+    font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.12em;
+    text-transform:uppercase;color:#DDEDE9;background:rgba(46,107,99,.35);
+    border:1px solid var(--teal);padding:5px 11px;
+  }
+  .live-dot{width:7px;height:7px;border-radius:50%;background:#7FE0C8;box-shadow:0 0 0 0 rgba(127,224,200,.6);animation:pulse 1.8s infinite;}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(127,224,200,.55);}70%{box-shadow:0 0 0 8px rgba(127,224,200,0);}100%{box-shadow:0 0 0 0 rgba(127,224,200,0);}}
+  .hero h2{font-size:38px;color:#fff;max-width:680px;margin-top:16px;line-height:1.15;}
+  .hero .dept-tag{color:var(--brass);font-family:'IBM Plex Mono',monospace;font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;margin-top:10px;display:block;}
+  .hero p.desc{color:#C9CEE0;max-width:620px;margin-top:14px;font-size:14.5px;line-height:1.65;}
+  .hero-facts{display:flex;gap:34px;flex-wrap:wrap;margin-top:26px;border-top:1px solid #2B3A63;padding-top:20px;}
+  .fact-label{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:#8891B5;margin-bottom:4px;}
+  .fact-val{font-size:14.5px;color:#fff;font-weight:500;}
+  .hero-actions{display:flex;gap:12px;margin-top:28px;flex-wrap:wrap;}
+
+  .btn{
+    border:1px solid transparent;padding:11px 20px;font-size:13.5px;font-weight:600;
+    letter-spacing:.02em;transition:.15s;border-radius:var(--radius);
+  }
+  .btn-brass{background:var(--brass);color:#fff;}
+  .btn-brass:hover{background:var(--brass-dk);}
+  .btn-ghost{background:transparent;color:#fff;border-color:#4A5581;}
+  .btn-ghost:hover{border-color:#fff;}
+  .btn-dark{background:var(--ink);color:#fff;}
+  .btn-dark:hover{background:var(--ink-2);}
+  .btn-outline{background:transparent;color:var(--ink);border-color:var(--ink);}
+  .btn-outline:hover{background:var(--ink);color:#fff;}
+  .btn-sm{padding:7px 13px;font-size:12px;}
+
+  /* ===== section headers ===== */
+  .sec-head{display:flex;justify-content:space-between;align-items:flex-end;margin:56px 0 20px;flex-wrap:wrap;gap:12px;}
+  .sec-head .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--brass-dk);display:block;margin-bottom:6px;}
+  .sec-head h3{font-size:24px;}
+  .sec-head .count{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text-soft);}
+
+  /* ===== department filter chips ===== */
+  .chips{display:flex;gap:8px;flex-wrap:wrap;}
+  .chip{
+    background:var(--card);border:1px solid var(--line);padding:7px 14px;font-size:12.5px;
+    font-weight:500;color:var(--text-soft);transition:.15s;
+  }
+  .chip:hover{border-color:var(--ink);color:var(--ink);}
+  .chip.active{background:var(--ink);border-color:var(--ink);color:#fff;}
+
+  /* ===== conference cards ===== */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;}
+  .conf-card{
+    background:var(--card);border:1px solid var(--line);padding:22px 22px 20px;
+    display:flex;flex-direction:column;gap:10px;position:relative;transition:.18s;
+  }
+  .conf-card:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(22,33,62,.1);border-color:var(--brass);}
+  .conf-card .dept-pill{
+    align-self:flex-start;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.08em;
+    text-transform:uppercase;background:var(--paper);border:1px solid var(--line);padding:3px 9px;color:var(--teal-dk);
+  }
+  .conf-card h4{font-size:18px;line-height:1.3;}
+  .conf-card .conf-dates{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text-soft);}
+  .conf-card .deadline{font-size:12px;color:var(--rust);font-weight:600;}
+  .conf-card .materials{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
+  .mat-link{
+    font-size:11.5px;font-family:'IBM Plex Mono',monospace;color:var(--ink-2);border-bottom:1px dotted var(--ink-2);
+    padding-bottom:1px;display:inline-flex;align-items:center;gap:4px;
+  }
+  .mat-link:hover{color:var(--brass-dk);border-color:var(--brass-dk);}
+  .conf-card .card-actions{margin-top:10px;display:flex;gap:8px;}
+
+  /* ===== archive table ===== */
+  .archive-wrap{border:1px solid var(--line);background:var(--card);}
+  table{width:100%;border-collapse:collapse;}
+  thead th{
+    text-align:left;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--text-soft);padding:12px 16px;border-bottom:1px solid var(--line);background:var(--paper-2);
+  }
+  tbody td{padding:13px 16px;border-bottom:1px solid var(--line);font-size:13.5px;vertical-align:middle;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:hover{background:var(--paper-2);}
+  .status-pill{
+    font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;
+    padding:3px 9px;border:1px solid;display:inline-block;
+  }
+  .st-accepted{color:var(--teal-dk);border-color:var(--teal);background:#E4EFEC;}
+  .st-submitted{color:var(--brass-dk);border-color:var(--brass);background:#F3EBD9;}
+  .st-review{color:#5B4B9E;border-color:#8878C8;background:#EBE7F7;}
+  .st-rejected{color:var(--rust);border-color:var(--rust);background:#F5E4E0;}
+  .st-paid{color:var(--teal-dk);border-color:var(--teal);background:#E4EFEC;}
+  .st-unpaid{color:var(--text-soft);border-color:var(--line);background:var(--paper-2);}
+
+  /* ===== submission form ===== */
+  .submit-layout{display:grid;grid-template-columns:1.3fr 1fr;gap:34px;margin-top:8px;align-items:start;}
+  @media (max-width:820px){.submit-layout{grid-template-columns:1fr;}}
+  .form-card{background:var(--card);border:1px solid var(--line);padding:28px;}
+  .field{margin-bottom:16px;}
+  .field label{display:block;font-size:12px;font-weight:600;color:var(--ink-2);margin-bottom:6px;letter-spacing:.01em;}
+  .field input,.field select,.field textarea{
+    width:100%;border:1px solid var(--line);background:#fff;padding:10px 12px;font-size:13.5px;
+    font-family:inherit;color:var(--text);border-radius:var(--radius);
+  }
+  .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--teal);}
+  .field textarea{resize:vertical;min-height:90px;}
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .radio-group{display:flex;gap:16px;margin-top:4px;}
+  .radio-opt{display:flex;align-items:center;gap:6px;font-size:13px;}
+
+  /* ===== abstract id stamp (signature element) ===== */
+  .stamp-wrap{position:sticky;top:20px;}
+  .stamp{
+    background:var(--ink);color:#fff;padding:26px 24px 22px;position:relative;
+    border:1px solid var(--ink-2);
+  }
+  .stamp::before,.stamp::after{
+    content:"";position:absolute;left:0;right:0;height:14px;
+    background-image:radial-gradient(circle at 12px 50%, var(--paper) 6px, transparent 6.5px);
+    background-size:24px 14px;background-repeat:repeat-x;
+  }
+  .stamp::before{top:-7px;}
+  .stamp::after{bottom:-7px;transform:rotate(180deg);}
+  .stamp .stamp-eyebrow{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--brass);}
+  .stamp .stamp-id{font-family:'IBM Plex Mono',monospace;font-size:26px;font-weight:600;margin-top:10px;letter-spacing:.02em;word-break:break-all;}
+  .stamp .stamp-row{display:flex;justify-content:space-between;margin-top:16px;border-top:1px dashed #3A4670;padding-top:14px;font-size:12px;color:#C9CEE0;}
+  .stamp .barcode{margin-top:16px;height:34px;background-image:repeating-linear-gradient(90deg,#fff 0 2px,transparent 2px 4px,#fff 4px 5px,transparent 5px 9px,#fff 9px 11px,transparent 11px 13px);opacity:.85;}
+  .stamp.empty{opacity:.55;}
+  .stamp.empty .stamp-id{font-size:15px;font-weight:400;color:#B9BFD6;font-family:'IBM Plex Sans',sans-serif;}
+  @keyframes stampIn{0%{transform:scale(.85) rotate(-3deg);opacity:0;}60%{transform:scale(1.03) rotate(1deg);opacity:1;}100%{transform:scale(1) rotate(0);}}
+  .stamp.just-stamped{animation:stampIn .45s cubic-bezier(.2,.9,.3,1.2);}
+  .pay-note{margin-top:14px;font-size:12px;color:var(--text-soft);background:var(--paper-2);border:1px solid var(--line);padding:10px 12px;}
+
+  /* ===== admin ===== */
+  .admin-bar{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:18px;}
+  .admin-bar input,.admin-bar select{border:1px solid var(--line);padding:9px 12px;font-size:13px;background:#fff;font-family:inherit;}
+  .stat-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);margin-bottom:26px;}
+  .stat-box{background:var(--card);padding:16px 18px;}
+  .stat-box .num{font-family:'Fraunces',serif;font-size:26px;color:var(--ink);}
+  .stat-box .lbl{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-soft);margin-top:2px;}
+  select.status-select{
+    font-family:'IBM Plex Mono',monospace;font-size:11px;border:1px solid var(--line);padding:4px 6px;background:#fff;
+  }
+
+  .toast{
+    position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:var(--ink);color:#fff;padding:12px 22px;font-size:13px;border:1px solid var(--brass);
+    opacity:0;transition:.25s;pointer-events:none;z-index:50;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  footer{
+    border-top:1px solid var(--line);margin-top:70px;padding:26px 28px;
+    max-width:1180px;margin-left:auto;margin-right:auto;
+    display:flex;justify-content:space-between;color:var(--text-soft);font-size:12px;flex-wrap:wrap;gap:8px;
+  }
+  .empty-state{padding:40px 20px;text-align:center;color:var(--text-soft);font-size:13.5px;border:1px dashed var(--line);background:var(--card);}
+
+  /* ===== role / auth ===== */
+  .role-area{display:flex;align-items:center;gap:10px;}
+  .role-pill{
+    font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;
+    padding:5px 10px;border:1px solid var(--brass);color:#F3E6C8;background:rgba(162,120,47,.18);
+  }
+  .link-btn{
+    background:none;border:none;color:#C9CEE0;font-family:'IBM Plex Mono',monospace;font-size:11.5px;
+    text-decoration:underline;text-underline-offset:3px;padding:0;
+  }
+  .link-btn:hover{color:#fff;}
+  nav.tabs button[data-locked]{opacity:.4;}
+  .gate-note{
+    max-width:520px;margin:60px auto;text-align:center;background:var(--card);border:1px solid var(--line);
+    padding:40px 30px;
+  }
+  .gate-note h3{margin-bottom:10px;}
+  .gate-note p{color:var(--text-soft);font-size:13.5px;line-height:1.6;margin-bottom:18px;}
+
+  /* ===== modal overlay ===== */
+  .overlay{
+    position:fixed;inset:0;background:rgba(22,33,62,.62);display:none;
+    align-items:center;justify-content:center;z-index:100;padding:20px;
+  }
+  .overlay.show{display:flex;}
+  .modal{
+    background:var(--paper-2);border:1px solid var(--line);max-width:420px;width:100%;
+    padding:30px 28px 26px;position:relative;box-shadow:0 20px 50px rgba(22,33,62,.35);
+    max-height:90vh;overflow-y:auto;
+  }
+  .modal-close{
+    position:absolute;top:14px;right:16px;background:none;border:none;font-size:18px;color:var(--text-soft);
+    line-height:1;padding:4px;
+  }
+  .modal-close:hover{color:var(--rust);}
+  .modal .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--brass-dk);display:block;margin-bottom:6px;}
+  .modal h3{font-size:20px;margin-bottom:4px;}
+  .modal .modal-sub{color:var(--text-soft);font-size:12.5px;margin-bottom:20px;}
+  .modal .field{margin-bottom:14px;}
+  .modal .hint{font-size:11.5px;color:var(--text-soft);margin-top:14px;background:var(--card);border:1px solid var(--line);padding:8px 10px;}
+  .modal .err{font-size:12px;color:var(--rust);margin-top:-6px;margin-bottom:10px;display:none;}
+  .modal .err.show{display:block;}
+  .pay-amount-box{
+    background:var(--ink);color:#fff;padding:16px 18px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;
+  }
+  .pay-amount-box .amt-label{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#B9BFD6;}
+  .pay-amount-box .amt-val{font-family:'Fraunces',serif;font-size:26px;color:#fff;}
+  .pay-methods{display:flex;gap:8px;margin-bottom:16px;}
+  .pay-method{flex:1;text-align:center;border:1px solid var(--line);background:#fff;padding:9px 6px;font-size:12px;font-weight:600;color:var(--text-soft);}
+  .pay-method.active{border-color:var(--teal);color:var(--teal-dk);background:#E4EFEC;}
+  .pay-success{text-align:center;padding:10px 0;}
+  .pay-success .tick{
+    width:52px;height:52px;border-radius:50%;background:var(--teal);color:#fff;font-size:26px;
+    display:flex;align-items:center;justify-content:center;margin:0 auto 14px;
+  }
+  .pay-success .txn{font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--text-soft);margin-top:8px;}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none !important;transition:none !important;}
+  }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="masthead-top">
+    <div class="brand">
+      <span class="brand-eyebrow">LJ University · IEEE Student Branch</span>
+      <h1>Conference Management Tool</h1>
+      <span class="brand-sub">CODEAPEX Technical Event — department-wise conference registry</span>
+    </div>
+    <div class="masthead-meta">
+      <div id="clock-date">—</div>
+      <div class="role-area" id="role-area" style="justify-content:flex-end;margin-top:4px;"></div>
+    </div>
+  </div>
+  <nav class="tabs" id="tabs"></nav>
+</header>
+
+<main>
+
+  <!-- HOME -->
+  <section id="home" class="active">
+    <div class="hero" id="hero-mount"></div>
+
+    <div class="sec-head">
+      <div>
+        <span class="eyebrow">Browse by department</span>
+        <h3>All conferences, grouped by department</h3>
+      </div>
+      <div class="chips" id="dept-chips-home"></div>
+    </div>
+    <div class="grid" id="home-grid"></div>
+  </section>
+
+  <!-- UPCOMING -->
+  <section id="upcoming">
+    <div class="sec-head">
+      <div>
+        <span class="eyebrow">Open for registration</span>
+        <h3>Upcoming conferences</h3>
+      </div>
+      <div class="chips" id="dept-chips-upcoming"></div>
+    </div>
+    <div class="grid" id="upcoming-grid"></div>
+  </section>
+
+  <!-- ARCHIVE -->
+  <section id="archive">
+    <div class="sec-head">
+      <div>
+        <span class="eyebrow">Completed conferences · retained as records</span>
+        <h3>Archive</h3>
+      </div>
+      <div class="chips" id="dept-chips-archive"></div>
+    </div>
+    <div class="archive-wrap">
+      <table>
+        <thead>
+          <tr><th>Conference</th><th>Department</th><th>Year</th><th>Submissions</th><th>Materials</th><th></th></tr>
+        </thead>
+        <tbody id="archive-body"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- SUBMIT -->
+  <section id="submit">
+    <div class="sec-head" style="margin-top:34px;">
+      <div>
+        <span class="eyebrow">Author registration &amp; paper submission</span>
+        <h3>Submit a paper or poster</h3>
+      </div>
+    </div>
+    <div class="submit-layout">
+      <div class="form-card">
+        <div class="field">
+          <label for="f-conf">Conference</label>
+          <select id="f-conf"></select>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="f-name">Author name</label>
+            <input id="f-name" type="text" placeholder="e.g. Ananya Shah">
+          </div>
+          <div class="field">
+            <label for="f-email">Email</label>
+            <input id="f-email" type="email" placeholder="you@example.edu">
+          </div>
+        </div>
+        <div class="field">
+          <label for="f-title">Paper / poster title</label>
+          <input id="f-title" type="text" placeholder="Title of your submission">
+        </div>
+        <div class="field">
+          <label for="f-abstract">Abstract</label>
+          <textarea id="f-abstract" placeholder="Brief summary of your work (150–250 words)"></textarea>
+        </div>
+        <div class="field">
+          <label>Presentation type</label>
+          <div class="radio-group">
+            <label class="radio-opt"><input type="radio" name="ptype" value="Paper" checked> Paper presentation</label>
+            <label class="radio-opt"><input type="radio" name="ptype" value="Poster"> Poster presentation</label>
+          </div>
+        </div>
+        <button class="btn btn-brass" id="btn-submit-paper">Generate Abstract ID &amp; register</button>
+      </div>
+
+      <div class="stamp-wrap">
+        <div class="stamp empty" id="stamp-card">
+          <span class="stamp-eyebrow">Abstract receipt</span>
+          <div class="stamp-id" id="stamp-id-text">Fill in the form to generate your unique Abstract ID</div>
+        </div>
+        <div class="pay-note" id="pay-note" style="display:none;">
+          Registration fee for <strong id="pay-conf-name"></strong> is pending.
+          <div style="margin-top:10px;"><button class="btn btn-dark btn-sm" id="btn-pay">Pay registration fee (mock gateway)</button></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ADMIN -->
+  <section id="admin">
+    <div class="sec-head" style="margin-top:34px;">
+      <div>
+        <span class="eyebrow">Administrator</span>
+        <h3>Submissions &amp; reports</h3>
+      </div>
+    </div>
+    <div class="stat-strip" id="stat-strip"></div>
+    <div class="admin-bar">
+      <input type="text" id="admin-search" placeholder="Search by Abstract ID, author, or title…" style="min-width:260px;">
+      <select id="admin-filter-dept"></select>
+      <select id="admin-filter-status">
+        <option value="">All statuses</option>
+        <option>Submitted</option>
+        <option>Under Review</option>
+        <option>Accepted</option>
+        <option>Rejected</option>
+      </select>
+      <button class="btn btn-outline btn-sm" id="btn-export">Generate report (.txt)</button>
+    </div>
+    <div class="archive-wrap">
+      <table>
+        <thead>
+          <tr><th>Abstract ID</th><th>Title</th><th>Author</th><th>Dept</th><th>Type</th><th>Status</th><th>Payment</th></tr>
+        </thead>
+        <tbody id="admin-body"></tbody>
+      </table>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <span>Conference Management Tool — CodeAPEX Technical Event, IEEE Student Branch, LJ University</span>
+  <span class="mono">Demo build · in-memory data</span>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<!-- ADMIN LOGIN MODAL -->
+<div class="overlay" id="login-overlay">
+  <div class="modal">
+    <button class="modal-close" id="login-close" aria-label="Close">✕</button>
+    <span class="eyebrow">Administrator access</span>
+    <h3>Log in to the Admin Panel</h3>
+    <div class="modal-sub">This is a separate, restricted panel — only for conference organizers.</div>
+    <div class="field">
+      <label for="login-user">Username</label>
+      <input id="login-user" type="text" placeholder="admin">
+    </div>
+    <div class="field">
+      <label for="login-pass">Password</label>
+      <input id="login-pass" type="password" placeholder="••••••••">
+    </div>
+    <div class="err" id="login-err">Incorrect username or password.</div>
+    <button class="btn btn-brass" id="login-submit" style="width:100%;">Log in</button>
+    <div class="hint">Demo credentials — Username: <strong>admin</strong> · Password: <strong>admin123</strong></div>
+  </div>
+</div>
+
+<!-- PAYMENT MODAL -->
+<div class="overlay" id="pay-overlay">
+  <div class="modal">
+    <button class="modal-close" id="pay-close" aria-label="Close">✕</button>
+    <span class="eyebrow">Registration payment</span>
+    <h3 id="pay-modal-title">Pay conference fee</h3>
+    <div class="modal-sub" id="pay-modal-sub">Abstract ID —</div>
+
+    <div id="pay-form-wrap">
+      <div class="pay-amount-box">
+        <span class="amt-label">Amount due</span>
+        <span class="amt-val" id="pay-amount-val">₹0</span>
+      </div>
+      <div class="pay-methods">
+        <button type="button" class="pay-method active" data-method="upi">UPI</button>
+        <button type="button" class="pay-method" data-method="card">Card</button>
+      </div>
+
+      <div id="pay-upi-fields">
+        <div class="field">
+          <label for="pay-upi-id">UPI ID</label>
+          <input id="pay-upi-id" type="text" placeholder="yourname@upi">
+        </div>
+      </div>
+      <div id="pay-card-fields" style="display:none;">
+        <div class="field">
+          <label for="pay-card-num">Card number</label>
+          <input id="pay-card-num" type="text" maxlength="19" placeholder="1234 5678 9012 3456">
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="pay-card-exp">Expiry (MM/YY)</label>
+            <input id="pay-card-exp" type="text" maxlength="5" placeholder="08/29">
+          </div>
+          <div class="field">
+            <label for="pay-card-cvv">CVV</label>
+            <input id="pay-card-cvv" type="password" maxlength="3" placeholder="•••">
+          </div>
+        </div>
+      </div>
+      <div class="err" id="pay-err">Please check the payment details entered.</div>
+      <button class="btn btn-brass" id="pay-submit" style="width:100%;">Confirm &amp; pay</button>
+    </div>
+
+    <div id="pay-success-wrap" style="display:none;">
+      <div class="pay-success">
+        <div class="tick">✓</div>
+        <h3>Payment successful</h3>
+        <p style="color:var(--text-soft);font-size:13px;margin-top:6px;">Your registration fee has been received.</p>
+        <div class="txn" id="pay-txn-id"></div>
+      </div>
+      <button class="btn btn-dark" id="pay-done" style="width:100%;margin-top:14px;">Done</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---------------- Mock data ---------------- */
+const DEPTS = [
+  {code:'CSE', name:'Computer Sci. & Engg.'},
+  {code:'ECE', name:'Electronics & Comm.'},
+  {code:'MECH', name:'Mechanical Engg.'},
+  {code:'CIVIL', name:'Civil Engg.'},
+];
+
+const CURRENT_CONF = {
+  id:'icetse-2026', name:'ICETSE 2026', dept:'CSE', fee:'₹750',
+  full:'International Conference on Emerging Trends in Software Engineering',
+  dates:'8–9 August 2026', venue:'LJ University, Auditorium Block',
+  desc:'Two days of paper presentations, posters, and keynotes on software engineering, AI systems, and platform architecture — live schedule and updates below.'
+};
+
+let UPCOMING = [
+  {id:'ncacs-2026', name:'NCACS 2026', dept:'ECE', dates:'14–15 Sept 2026', deadline:'25 Aug 2026', fee:'₹800'},
+  {id:'icmes-2026', name:'ICMES 2026', dept:'MECH', dates:'3–4 Oct 2026', deadline:'15 Sep 2026', fee:'₹900'},
+  {id:'iccse-2026', name:'ICCSE 2026', dept:'CIVIL', dates:'19–20 Nov 2026', deadline:'5 Oct 2026', fee:'₹850'},
+  {id:'icdsa-2027', name:'ICDSA 2027', dept:'CSE', dates:'21–22 Jan 2027', deadline:'10 Dec 2026', fee:'₹800'},
+];
+
+let ARCHIVE = [
+  {id:'icetse-2025', name:'ICETSE 2025', dept:'CSE', year:'2025', submissions:142},
+  {id:'ncacs-2025', name:'NCACS 2025', dept:'ECE', year:'2025', submissions:97},
+  {id:'icmes-2024', name:'ICMES 2024', dept:'MECH', year:'2024', submissions:118},
+  {id:'iccse-2024', name:'ICCSE 2024', dept:'CIVIL', year:'2024', submissions:76},
+];
+
+const ALL_CONF_OPTIONS = [
+  {id:CURRENT_CONF.id, label:CURRENT_CONF.name+' — CSE (current)', dept:'CSE', fee:CURRENT_CONF.fee},
+  ...UPCOMING.map(c=>({id:c.id, label:c.name+' — '+c.dept, dept:c.dept, fee:c.fee})),
+];
+const FEES = {};
+ALL_CONF_OPTIONS.forEach(c=>{ FEES[c.id] = parseInt(c.fee.replace(/[^\d]/g,''),10); });
+
+let SUBMISSIONS = [
+  {abstractId:'CMT-2026-CSE-0001', title:'Latency-aware microservice orchestration', author:'Rhea Kapoor', dept:'CSE', type:'Paper', status:'Under Review', paid:true, confId:'icetse-2026', amount:FEES['icetse-2026'], txnId:'TXN-8841002'},
+  {abstractId:'CMT-2026-CSE-0002', title:'A poster on federated edge caching', author:'Vivaan Mehta', dept:'CSE', type:'Poster', status:'Accepted', paid:true, confId:'icetse-2026', amount:FEES['icetse-2026'], txnId:'TXN-8841057'},
+  {abstractId:'CMT-2026-ECE-0003', title:'Low-power RF front-end for IoT nodes', author:'Sara Iyer', dept:'ECE', type:'Paper', status:'Submitted', paid:false, confId:'ncacs-2026', amount:FEES['ncacs-2026'], txnId:null},
+];
+let seq = SUBMISSIONS.length;
+
+/* ---------------- Role / auth state (in-memory only) ---------------- */
+let currentRole = 'guest'; // 'guest' | 'admin'
+const ADMIN_CREDS = { username:'admin', password:'admin123' };
+
+/* ---------------- Helpers ---------------- */
+const $ = sel => document.querySelector(sel);
+const $$ = sel => Array.from(document.querySelectorAll(sel));
+let activeDeptHome = 'ALL', activeDeptUpcoming = 'ALL', activeDeptArchive = 'ALL';
+
+function toast(msg){
+  const t = $('#toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toast._h);
+  toast._h = setTimeout(()=>t.classList.remove('show'), 2600);
+}
+
+function deptName(code){
+  const d = DEPTS.find(d=>d.code===code);
+  return d ? d.name : code;
+}
+
+function downloadText(filename, content){
+  const blob = new Blob([content], {type:'text/plain'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+}
+
+/* ---------------- Nav / tabs (role-aware: separate user panel vs admin panel) ---------------- */
+const USER_TABS = [
+  {tab:'home', label:'Home'},
+  {tab:'upcoming', label:'Upcoming'},
+  {tab:'archive', label:'Archive'},
+  {tab:'submit', label:'Submit a Paper'},
+];
+const ADMIN_TABS = [
+  {tab:'admin', label:'Admin Dashboard'},
+];
+
+function goToTab(tabId){
+  document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('active', b.dataset.tab===tabId));
+  document.querySelectorAll('main section').forEach(s=>s.classList.remove('active'));
+  const sec = $('#'+tabId);
+  if(sec) sec.classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function renderNav(){
+  const tabs = currentRole === 'admin' ? ADMIN_TABS : USER_TABS;
+  const nav = $('#tabs');
+  nav.innerHTML = tabs.map((t,i)=>`<button data-tab="${t.tab}" class="${i===0?'active':''}">${t.label}</button>`).join('');
+  nav.querySelectorAll('button').forEach(btn=>{
+    btn.addEventListener('click', ()=> goToTab(btn.dataset.tab));
+  });
+  goToTab(tabs[0].tab);
+}
+
+function renderRoleArea(){
+  const mount = $('#role-area');
+  if(currentRole === 'admin'){
+    mount.innerHTML = `
+      <span class="role-pill">Admin panel</span>
+      <button class="link-btn" id="btn-logout">Log out</button>
+    `;
+    $('#btn-logout').addEventListener('click', ()=>{
+      currentRole = 'guest';
+      renderNav();
+      renderRoleArea();
+      toast('Logged out of the Admin Panel.');
+    });
+  } else {
+    mount.innerHTML = `<button class="link-btn" id="btn-admin-login">Admin login →</button>`;
+    $('#btn-admin-login').addEventListener('click', openLoginModal);
+  }
+}
+
+/* ---- Admin login modal ---- */
+function openLoginModal(){
+  $('#login-user').value = '';
+  $('#login-pass').value = '';
+  $('#login-err').classList.remove('show');
+  $('#login-overlay').classList.add('show');
+  $('#login-user').focus();
+}
+function closeLoginModal(){ $('#login-overlay').classList.remove('show'); }
+
+$('#login-close').addEventListener('click', closeLoginModal);
+$('#login-overlay').addEventListener('click', (e)=>{ if(e.target.id==='login-overlay') closeLoginModal(); });
+$('#login-submit').addEventListener('click', ()=>{
+  const u = $('#login-user').value.trim();
+  const p = $('#login-pass').value;
+  if(u === ADMIN_CREDS.username && p === ADMIN_CREDS.password){
+    currentRole = 'admin';
+    closeLoginModal();
+    renderNav();
+    renderRoleArea();
+    renderAdmin();
+    toast('Welcome — you are viewing the Admin Panel.');
+  } else {
+    $('#login-err').classList.add('show');
+  }
+});
+
+/* ---------------- Clock ---------------- */
+function renderClock(){
+  const now = new Date();
+  $('#clock-date').textContent = now.toLocaleDateString(undefined,{weekday:'long', year:'numeric', month:'long', day:'numeric'});
+}
+renderClock();
+
+/* ---------------- Hero ---------------- */
+function renderHero(){
+  $('#hero-mount').innerHTML = `
+    <span class="live-badge"><span class="live-dot"></span> Live now · Current conference</span>
+    <h2>${CURRENT_CONF.full}</h2>
+    <span class="dept-tag">${CURRENT_CONF.name} · ${deptName(CURRENT_CONF.dept)}</span>
+    <p class="desc">${CURRENT_CONF.desc}</p>
+    <div class="hero-facts">
+      <div><div class="fact-label">Dates</div><div class="fact-val">${CURRENT_CONF.dates}</div></div>
+      <div><div class="fact-label">Venue</div><div class="fact-val">${CURRENT_CONF.venue}</div></div>
+      <div><div class="fact-label">Department</div><div class="fact-val">${deptName(CURRENT_CONF.dept)}</div></div>
+    </div>
+    <div class="hero-actions">
+      <button class="btn btn-brass" onclick="document.querySelector('[data-tab=submit]').click()">Submit a paper</button>
+      <button class="btn btn-ghost" onclick="downloadText('${CURRENT_CONF.name}-brochure.txt','${CURRENT_CONF.full} — Conference Brochure\\n${CURRENT_CONF.dates}\\n${CURRENT_CONF.venue}')">Download brochure</button>
+      <button class="btn btn-ghost" onclick="downloadText('${CURRENT_CONF.name}-flyer.txt','${CURRENT_CONF.full} — Flyer\\n${CURRENT_CONF.dates}')">Download flyer</button>
+    </div>
+  `;
+}
+
+/* ---------------- Dept chips ---------------- */
+function renderChips(mountId, activeVal, onPick){
+  const mount = $(mountId);
+  const opts = [{code:'ALL', name:'All departments'}, ...DEPTS];
+  mount.innerHTML = opts.map(d=>`<button class="chip ${d.code===activeVal?'active':''}" data-code="${d.code}">${d.code==='ALL'?'All departments':d.code}</button>`).join('');
+  mount.querySelectorAll('.chip').forEach(ch=>{
+    ch.addEventListener('click', ()=>{ onPick(ch.dataset.code); });
+  });
+}
+
+/* ---------------- Home grid (current + upcoming, grouped) ---------------- */
+function renderHomeGrid(){
+  renderChips('#dept-chips-home', activeDeptHome, (code)=>{ activeDeptHome = code; renderHomeGrid(); });
+  const items = [
+    {kind:'current', ...CURRENT_CONF, dates:CURRENT_CONF.dates},
+    ...UPCOMING
+  ].filter(c=> activeDeptHome==='ALL' || c.dept===activeDeptHome);
+
+  const grid = $('#home-grid');
+  if(!items.length){ grid.innerHTML = `<div class="empty-state">No conferences for this department yet.</div>`; return; }
+  grid.innerHTML = items.map(c=>`
+    <div class="conf-card">
+      <span class="dept-pill">${c.dept}</span>
+      <h4>${c.name}${c.kind==='current' ? ' · live' : ''}</h4>
+      <div class="conf-dates">${c.dates}</div>
+      ${c.deadline ? `<div class="deadline">Submission deadline: ${c.deadline}</div>` : `<div class="deadline" style="color:var(--teal-dk);">In progress</div>`}
+      <div class="card-actions">
+        <button class="btn btn-outline btn-sm" onclick="document.querySelector('[data-tab=submit]').click(); document.getElementById('f-conf').value='${c.id}';">Submit here</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ---------------- Upcoming tab ---------------- */
+function renderUpcoming(){
+  renderChips('#dept-chips-upcoming', activeDeptUpcoming, (code)=>{ activeDeptUpcoming = code; renderUpcoming(); });
+  const items = UPCOMING.filter(c=> activeDeptUpcoming==='ALL' || c.dept===activeDeptUpcoming);
+  const grid = $('#upcoming-grid');
+  if(!items.length){ grid.innerHTML = `<div class="empty-state">No upcoming conferences for this department.</div>`; return; }
+  grid.innerHTML = items.map(c=>`
+    <div class="conf-card">
+      <span class="dept-pill">${c.dept}</span>
+      <h4>${c.name}</h4>
+      <div class="conf-dates">${c.dates}</div>
+      <div class="deadline">Call for papers closes ${c.deadline}</div>
+      <div style="font-size:12px;color:var(--text-soft);">Registration fee: ${c.fee}</div>
+      <div class="materials">
+        <span class="mat-link" onclick="downloadText('${c.name}-brochure.txt','${c.name} — Brochure\\nDates: ${c.dates}\\nDeadline: ${c.deadline}')">↓ Brochure</span>
+        <span class="mat-link" onclick="downloadText('${c.name}-flyer.txt','${c.name} — Flyer\\nDates: ${c.dates}')">↓ Flyer</span>
+      </div>
+      <div class="card-actions">
+        <button class="btn btn-outline btn-sm" onclick="document.querySelector('[data-tab=submit]').click(); document.getElementById('f-conf').value='${c.id}';">Register &amp; submit</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ---------------- Archive tab ---------------- */
+function renderArchive(){
+  renderChips('#dept-chips-archive', activeDeptArchive, (code)=>{ activeDeptArchive = code; renderArchive(); });
+  const items = ARCHIVE.filter(c=> activeDeptArchive==='ALL' || c.dept===activeDeptArchive);
+  const body = $('#archive-body');
+  if(!items.length){ body.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--text-soft);padding:30px;">No archived conferences for this department.</td></tr>`; return; }
+  body.innerHTML = items.map(c=>`
+    <tr>
+      <td><strong>${c.name}</strong></td>
+      <td><span class="dept-pill">${c.dept}</span></td>
+      <td class="mono">${c.year}</td>
+      <td class="mono">${c.submissions}</td>
+      <td><span class="mat-link" onclick="downloadText('${c.name}-report.txt','${c.name} — Final Report\\nDepartment: ${deptName(c.dept)}\\nTotal submissions: ${c.submissions}')">↓ Report</span></td>
+      <td><span class="mat-link" onclick="downloadText('${c.name}-brochure.txt','${c.name} — Archived brochure')">↓ Brochure</span></td>
+    </tr>
+  `).join('');
+}
+
+/* ---------------- Submit tab ---------------- */
+function renderConfSelect(){
+  $('#f-conf').innerHTML = ALL_CONF_OPTIONS.map(c=>`<option value="${c.id}">${c.label}</option>`).join('');
+}
+
+function nextAbstractId(deptCode){
+  seq += 1;
+  const year = new Date().getFullYear();
+  return `CMT-${year}-${deptCode}-${String(seq).padStart(4,'0')}`;
+}
+
+$('#btn-submit-paper').addEventListener('click', ()=>{
+  const confId = $('#f-conf').value;
+  const conf = ALL_CONF_OPTIONS.find(c=>c.id===confId);
+  const name = $('#f-name').value.trim();
+  const email = $('#f-email').value.trim();
+  const title = $('#f-title').value.trim();
+  const abstract = $('#f-abstract').value.trim();
+  const ptype = document.querySelector('input[name=ptype]:checked').value;
+
+  if(!name || !email || !title || !abstract){
+    toast('Please fill in author, email, title, and abstract.');
+    return;
+  }
+
+  const abstractId = nextAbstractId(conf.dept);
+  const amount = FEES[conf.id] || 0;
+  SUBMISSIONS.push({abstractId, title, author:name, dept:conf.dept, type:ptype, status:'Submitted', paid:false, confId:conf.id, amount, txnId:null});
+
+  const stampEl = $('#stamp-card');
+  stampEl.classList.remove('empty');
+  stampEl.innerHTML = `
+    <span class="stamp-eyebrow">Abstract receipt · ${ptype}</span>
+    <div class="stamp-id">${abstractId}</div>
+    <div class="stamp-row">
+      <span>${conf.label.split(' — ')[0]}</span>
+      <span>${name}</span>
+    </div>
+    <div class="barcode"></div>
+  `;
+  stampEl.classList.add('just-stamped');
+  setTimeout(()=>stampEl.classList.remove('just-stamped'), 500);
+
+  $('#pay-note').style.display = 'block';
+  $('#pay-conf-name').textContent = `${conf.label.split(' — ')[0]} (fee: ₹${amount})`;
+  $('#btn-pay').dataset.abstractId = abstractId;
+  $('#btn-pay').disabled = false;
+  $('#btn-pay').textContent = `Pay registration fee (₹${amount})`;
+
+  toast('Registered — Abstract ID generated.');
+  renderAdmin();
+});
+
+$('#btn-pay').addEventListener('click', (e)=>{
+  openPaymentModal(e.target.dataset.abstractId);
+});
+
+/* ---- Payment modal (mock gateway, but with real amount + validation) ---- */
+let payMethod = 'upi';
+
+function openPaymentModal(abstractId){
+  const sub = SUBMISSIONS.find(s=>s.abstractId===abstractId);
+  if(!sub) return;
+  if(sub.paid){ toast('This submission is already paid.'); return; }
+
+  $('#pay-modal-title').textContent = 'Pay conference fee';
+  $('#pay-modal-sub').textContent = `Abstract ID — ${sub.abstractId}`;
+  $('#pay-amount-val').textContent = `₹${sub.amount}`;
+  $('#pay-submit').dataset.abstractId = abstractId;
+  $('#pay-err').classList.remove('show');
+  $('#pay-upi-id').value = '';
+  $('#pay-card-num').value = '';
+  $('#pay-card-exp').value = '';
+  $('#pay-card-cvv').value = '';
+  payMethod = 'upi';
+  document.querySelectorAll('.pay-method').forEach(b=>b.classList.toggle('active', b.dataset.method==='upi'));
+  $('#pay-upi-fields').style.display = 'block';
+  $('#pay-card-fields').style.display = 'none';
+  $('#pay-form-wrap').style.display = 'block';
+  $('#pay-success-wrap').style.display = 'none';
+  $('#pay-submit').disabled = false;
+  $('#pay-submit').textContent = 'Confirm & pay';
+  $('#pay-overlay').classList.add('show');
+}
+function closePaymentModal(){ $('#pay-overlay').classList.remove('show'); }
+
+$('#pay-close').addEventListener('click', closePaymentModal);
+$('#pay-overlay').addEventListener('click', (e)=>{ if(e.target.id==='pay-overlay') closePaymentModal(); });
+
+document.querySelectorAll('.pay-method').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    payMethod = btn.dataset.method;
+    document.querySelectorAll('.pay-method').forEach(b=>b.classList.toggle('active', b===btn));
+    $('#pay-upi-fields').style.display = payMethod==='upi' ? 'block' : 'none';
+    $('#pay-card-fields').style.display = payMethod==='card' ? 'block' : 'none';
+    $('#pay-err').classList.remove('show');
+  });
+});
+
+function validPayment(){
+  if(payMethod === 'upi'){
+    const upi = $('#pay-upi-id').value.trim();
+    return /^[\w.\-]{2,}@[a-zA-Z]{2,}$/.test(upi);
+  }
+  const num = $('#pay-card-num').value.replace(/\s/g,'');
+  const exp = $('#pay-card-exp').value.trim();
+  const cvv = $('#pay-card-cvv').value.trim();
+  const numOk = /^\d{16}$/.test(num);
+  const expOk = /^(0[1-9]|1[0-2])\/\d{2}$/.test(exp);
+  const cvvOk = /^\d{3}$/.test(cvv);
+  return numOk && expOk && cvvOk;
+}
+
+$('#pay-card-num').addEventListener('input', (e)=>{
+  e.target.value = e.target.value.replace(/[^\d]/g,'').slice(0,16).replace(/(.{4})/g,'$1 ').trim();
+});
+$('#pay-card-exp').addEventListener('input', (e)=>{
+  let v = e.target.value.replace(/[^\d]/g,'').slice(0,4);
+  if(v.length > 2) v = v.slice(0,2)+'/'+v.slice(2);
+  e.target.value = v;
+});
+
+$('#pay-submit').addEventListener('click', ()=>{
+  if(!validPayment()){
+    $('#pay-err').textContent = payMethod==='upi'
+      ? 'Enter a valid UPI ID, e.g. yourname@upi.'
+      : 'Enter a valid 16-digit card number, MM/YY expiry, and 3-digit CVV.';
+    $('#pay-err').classList.add('show');
+    return;
+  }
+  $('#pay-err').classList.remove('show');
+  const abstractId = $('#pay-submit').dataset.abstractId;
+  const sub = SUBMISSIONS.find(s=>s.abstractId===abstractId);
+
+  $('#pay-submit').disabled = true;
+  $('#pay-submit').textContent = 'Processing…';
+
+  // Simulate gateway round-trip
+  setTimeout(()=>{
+    const txnId = 'TXN-' + Date.now().toString().slice(-9);
+    if(sub){ sub.paid = true; sub.txnId = txnId; }
+
+    $('#pay-form-wrap').style.display = 'none';
+    $('#pay-success-wrap').style.display = 'block';
+    $('#pay-txn-id').textContent = `Transaction ID: ${txnId} · ₹${sub ? sub.amount : ''} · ${payMethod.toUpperCase()}`;
+
+    if(abstractId === $('#btn-pay').dataset.abstractId){
+      $('#btn-pay').textContent = 'Payment received ✓';
+      $('#btn-pay').disabled = true;
+    }
+    renderAdmin();
+  }, 900);
+});
+
+$('#pay-done').addEventListener('click', closePaymentModal);
+
+/* ---------------- Admin tab ---------------- */
+function renderAdminFilters(){
+  $('#admin-filter-dept').innerHTML = `<option value="">All departments</option>` + DEPTS.map(d=>`<option value="${d.code}">${d.code}</option>`).join('');
+}
+
+function statusClass(s){
+  return {'Accepted':'st-accepted','Submitted':'st-submitted','Under Review':'st-review','Rejected':'st-rejected'}[s] || 'st-submitted';
+}
+
+function renderStats(){
+  const total = SUBMISSIONS.length;
+  const accepted = SUBMISSIONS.filter(s=>s.status==='Accepted').length;
+  const review = SUBMISSIONS.filter(s=>s.status==='Under Review').length;
+  const paid = SUBMISSIONS.filter(s=>s.paid).length;
+  const stats = [
+    {n:total, l:'Total submissions'},
+    {n:accepted, l:'Accepted'},
+    {n:review, l:'Under review'},
+    {n:paid, l:'Fees collected'},
+  ];
+  $('#stat-strip').innerHTML = stats.map(s=>`<div class="stat-box"><div class="num">${s.n}</div><div class="lbl">${s.l}</div></div>`).join('');
+}
+
+function renderAdmin(){
+  renderStats();
+  const q = $('#admin-search').value.trim().toLowerCase();
+  const deptF = $('#admin-filter-dept').value;
+  const statusF = $('#admin-filter-status').value;
+
+  let rows = SUBMISSIONS.filter(s=>{
+    const matchesQ = !q || s.abstractId.toLowerCase().includes(q) || s.author.toLowerCase().includes(q) || s.title.toLowerCase().includes(q);
+    const matchesDept = !deptF || s.dept===deptF;
+    const matchesStatus = !statusF || s.status===statusF;
+    return matchesQ && matchesDept && matchesStatus;
+  });
+
+  const body = $('#admin-body');
+  if(!rows.length){ body.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--text-soft);padding:30px;">No submissions match your search.</td></tr>`; return; }
+
+  body.innerHTML = rows.map(s=>`
+    <tr>
+      <td class="mono">${s.abstractId}</td>
+      <td>${s.title}</td>
+      <td>${s.author}</td>
+      <td><span class="dept-pill">${s.dept}</span></td>
+      <td>${s.type}</td>
+      <td>
+        <select class="status-select" data-id="${s.abstractId}">
+          ${['Submitted','Under Review','Accepted','Rejected'].map(opt=>`<option ${opt===s.status?'selected':''}>${opt}</option>`).join('')}
+        </select>
+      </td>
+      <td>
+        <span class="status-pill ${s.paid?'st-paid':'st-unpaid'}">${s.paid?'Paid ₹'+s.amount:'Unpaid ₹'+s.amount}</span>
+        ${s.paid && s.txnId ? `<div class="mono" style="font-size:10.5px;color:var(--text-soft);margin-top:4px;">${s.txnId}</div>` : ''}
+      </td>
+    </tr>
+  `).join('');
+
+  body.querySelectorAll('.status-select').forEach(sel=>{
+    sel.addEventListener('change', ()=>{
+      const sub = SUBMISSIONS.find(s=>s.abstractId===sel.dataset.id);
+      sub.status = sel.value;
+      toast(`${sub.abstractId} marked ${sel.value}.`);
+      renderStats();
+    });
+  });
+}
+
+$('#admin-search').addEventListener('input', renderAdmin);
+$('#admin-filter-dept').addEventListener('change', renderAdmin);
+$('#admin-filter-status').addEventListener('change', renderAdmin);
+$('#btn-export').addEventListener('click', ()=>{
+  const lines = [
+    'CMT — Submission Report',
+    new Date().toString(),
+    '='.repeat(40),
+    ...SUBMISSIONS.map(s=>`${s.abstractId} | ${s.dept} | ${s.status} | ${s.paid?'Paid':'Unpaid'} | ${s.author} | ${s.title}`)
+  ];
+  downloadText('cmt-report.txt', lines.join('\n'));
+  toast('Report generated.');
+});
+
+/* ---------------- Init ---------------- */
+renderHero();
+renderHomeGrid();
+renderUpcoming();
+renderArchive();
+renderConfSelect();
+renderAdminFilters();
+renderAdmin();
+renderNav();
+renderRoleArea();
+</script>
+</body>
+</html>
